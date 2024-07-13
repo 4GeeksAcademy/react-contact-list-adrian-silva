@@ -2,9 +2,9 @@ import React from "react";
 import rigoImage from "../../img/rigo-baby.jpg";
 import "../../styles/home.css";
 
-export const Home = () => (
+const Home = () => (
 	<div className="text-center mt-5">
-		<h1>Hello Rigo!</h1>
+		<h1>Pagina de Inicio</h1>
 		<p>
 			<img src={rigoImage} />
 		</p>
@@ -13,3 +13,6 @@ export const Home = () => (
 		</a>
 	</div>
 );
+
+export default Home;
+//aquí mostraría todas las cards
