@@ -1,23 +1,32 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { useParams } from "react-router-dom";
+import { Context } from "../store/appContext";
+import { useNavigate } from "react-router-dom";
 
-const AddContactForm = ({ onAddContact, contactToEdit }) => {
-    //defino el estado para cada input
+const AddContactForm = ({ onAddContact }) => {
+    const { id } = useParams();
+    const { store, actions } = useContext(Context);
+    const navigate = useNavigate();
     const [fullName, setFullName] = useState("");
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
     const [address, setAddress] = useState("");
+    const [successMessage, setSuccessMessage] = useState("");
+    const [contactToEdit, setContactToEdit] = useState(null);
 
-    //utilizo useEffect para actualizar el estado si hay un contacto para editar
     useEffect(() => {
-        if (contactToEdit) {
-            setFullName(contactToEdit.fullName || "");
-            setEmail(contactToEdit.email || "");
-            setPhone(contactToEdit.phone || "");
-            setAddress(contactToEdit.address || "");
+        if (id) {
+            const contact = store.contactList.find((contact) => contact.id == id);
+            if (contact) {
+                setContactToEdit(contact);
+                setFullName(contact.fullName || "");
+                setEmail(contact.email || "");
+                setPhone(contact.phone || "");
+                setAddress(contact.address || "");
+            }
         }
-    }, [contactToEdit]);
+    }, [id, store.contactList]);
 
-    // Manejo los cambios en los inputs
     const handleChange = (e) => {
         const { id, value } = e.target;
         switch (id) {
@@ -38,7 +47,6 @@ const AddContactForm = ({ onAddContact, contactToEdit }) => {
         }
     };
 
-    // Maneja el submit del formulario
     const handleSubmit = (e) => {
         e.preventDefault();
         const updatedContact = {
@@ -56,8 +64,6 @@ const AddContactForm = ({ onAddContact, contactToEdit }) => {
         if (contactToEdit) {
             setSuccessMessage("Contact updated successfully");
         } else {
-            setSuccessMessage("New contact added successfully:", newContact);
-            //limpio los campos despues de añadir un nuevo contacto
             setFullName("");
             setEmail("");
             setPhone("");
@@ -65,29 +71,65 @@ const AddContactForm = ({ onAddContact, contactToEdit }) => {
         }
     };
 
+    const handleBackToHome = (e) => {
+        e.preventDefault(); 
+        navigate("/");
+    };
+
     return (
-        <form onSubmit={handleSubmit} className="container" style={{ maxwidth: '600px' }}>
-            <h1 class="text-center">{contactToEdit ? "Edit Contact" : "Add a new contact"}</h1>
+        <div className="container mt-3" style={{ maxWidth: '600px' }}>
+            <h1 className="text-center">{contactToEdit ? "Edit Contact" : "Add a new contact"}</h1>
             {successMessage && <div className="alert alert-success">{successMessage}</div>}
-            <div className="mb-3">
-                <label htmlFor="fullName" className="form-label">Full Name</label>
-                <input type="text" className="form-control" id="fullName" value={fullName} onChange={handleChange} placeholder="Full name" />
-            </div>
-            <div className="mb-3">
-                <label htmlFor="email" className="form-label">Email address</label>
-                <input type="email" className="form-control" id="email" value={email} onChange={handleChange} placeholder="Enter email" />
-            </div>
-            <div className="mb-3">
-                <label htmlFor="phone" className="form-label">Phone</label>
-                <input type="tel" className="form-control" id="phone" value={phone} onChange={handleChange} placeholder="Enter phone" />
-            </div>
-            <div className="mb-3">
-                <label htmlFor="address" className="form-label">Address</label>
-                <input type="text" className="form-control" id="address" value={address} onChange={handleChange} placeholder="Enter address" />
-            </div>
-            <button type="submit" className="btn btn-primary btn-lg btn-block" style={{ "width": "-webkit-fill-available" }}>save</button>
-            <p><a href="/contact">or get back to contacts</a></p>
-        </form>
+            <form onSubmit={handleSubmit}>
+                <div className="mb-3">
+                    <label htmlFor="fullName" className="form-label">Full Name</label>
+                    <input
+                        type="text"
+                        className="form-control"
+                        id="fullName"
+                        value={fullName}
+                        onChange={handleChange}
+                    />
+                </div>
+                <div className="mb-3">
+                    <label htmlFor="email" className="form-label">Email</label>
+                    <input
+                        type="email"
+                        className="form-control"
+                        id="email"
+                        value={email}
+                        onChange={handleChange}
+                    />
+                </div>
+                <div className="mb-3">
+                    <label htmlFor="phone" className="form-label">Phone</label>
+                    <input
+                        type="tel"
+                        className="form-control"
+                        id="phone"
+                        value={phone}
+                        onChange={handleChange}
+                    />
+                </div>
+                <div className="mb-3">
+                    <label htmlFor="address" className="form-label">Address</label>
+                    <input
+                        type="text"
+                        className="form-control"
+                        id="address"
+                        value={address}
+                        onChange={handleChange}
+                    />
+                </div>
+                <button type="submit" className="btn btn-primary w-100 mb-2">
+                    {contactToEdit ? "Update Contact" : "Save Contact"}
+                </button>
+            </form>
+            <a href="/" onClick={handleBackToHome} className="d-block text-center mt-3">
+                Back to Contacts list
+            </a>
+        </div>
     );
 };
+
 export default AddContactForm;

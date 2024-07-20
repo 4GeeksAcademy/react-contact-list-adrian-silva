@@ -1,41 +1,65 @@
-import React from "react";
+import React, { useContext } from "react";
+import { Context } from "../store/appContext";
+import { useNavigate } from "react-router-dom";
 
-const ContactCard = ({ name, email, phone, address, id, onEditContact, onDeleteContact }) => {
+const ContactCard = ({ name, email, phone, address, id }) => {
+    const { actions } = useContext(Context);
+    const navigate = useNavigate();
+
     const handleEditContact = () => {
-        onEditContact(id); // Llamo a la función de edición pasando el ID del contacto
+        navigate(`/editContact/${id}`);
     };
 
-    const handleDeleteContact = () => {
-        onDeleteContact(id); // Llamo a la función de eliminación pasando el ID del contacto
+    const handleDeleteContact = async () => {
+        try {
+            await actions.deleteContact(id);
+            actions.getContactList();
+        } catch (error) {
+            console.error("Error deleting contact:", error);
+        }
     };
 
     return (
-         <div className="card mb-3 card w-100"> 
+        <div className="card mb-3 position-relative">
+            {/* Botones Editar y Eliminar */}
+            <div className="position-absolute top-0 end-0 p-2 d-flex align-items-start">
+                <button
+                    type="button"
+                    className="btn btn-link text-dark me-2 p-0"
+                    onClick={handleEditContact}
+                    title="Edit"
+                >
+                    <i className="fas fa-pencil-alt fa-lg"></i>
+                </button>
+                <button
+                    type="button"
+                    className="btn btn-link text-dark p-0"
+                    onClick={handleDeleteContact}
+                    title="Delete"
+                >
+                    <i className="fas fa-trash-alt fa-lg"></i>
+                </button>
+            </div>
             <div className="row g-0">
-                <div className="col-md-3">
+                <div className="col-md-3 d-flex justify-content-center align-items-center">
                     <img
                         src="https://picsum.photos/200"
                         className="img-fluid rounded-circle"
-                        alt="imagen"
+                        alt="Profile"
                     />
                 </div>
-                <div className="col-md-7">
+                <div className="col-md-9">
                     <div className="card-body">
-                        <h4 className="card-title">Full Name</h4>
-                        <h4 className="card-subtitle mb-2 text-muted">{name}</h4>
-                        <h4 className="card-text">{email}</h4>
-                        <p className="card-text">{phone}</p>
-                        <p className="card-text">{address}</p>
-                    </div>
-                </div>
-                <div className="col-md-2">
-                    <div className="d-flex flex-column justify-content-center align-items-center h-100">
-                        <button type="button" className="btn btn-outline-primary mb-2" onClick={handleEditContact}>
-                            <i className="fas fa-pencil-alt"></i>
-                        </button>
-                        <button type="button" className="btn btn-outline-primary" onClick={handleDeleteContact}>
-                            <i className="fas fa-trash-alt"></i>
-                        </button>
+                        <h4 className="card-title">{name}</h4>
+                        <p className="card-text">
+                            <i className="fas fa-map-marker-alt me-2"></i>{address}
+                        </p>
+                        <p className="card-text">
+                            <i className="fas fa-phone me-2"></i>{phone}
+                        </p>
+                        <p className="card-text">
+                            <i className="fas fa-envelope me-2"></i>{email}
+                        </p>
                     </div>
                 </div>
             </div>
