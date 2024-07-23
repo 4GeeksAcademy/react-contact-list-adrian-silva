@@ -3,11 +3,11 @@ import { useParams } from "react-router-dom";
 import { Context } from "../store/appContext";
 import { useNavigate } from "react-router-dom";
 
-const AddContactForm = ({ onAddContact }) => {
+const AddContactForm = () => {
     const { id } = useParams();
     const { store, actions } = useContext(Context);
     const navigate = useNavigate();
-    const [fullName, setFullName] = useState("");
+    const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
     const [address, setAddress] = useState("");
@@ -19,7 +19,7 @@ const AddContactForm = ({ onAddContact }) => {
             const contact = store.contactList.find((contact) => contact.id == id);
             if (contact) {
                 setContactToEdit(contact);
-                setFullName(contact.fullName || "");
+                setName(contact.name || ""); // Update the field names here
                 setEmail(contact.email || "");
                 setPhone(contact.phone || "");
                 setAddress(contact.address || "");
@@ -30,8 +30,8 @@ const AddContactForm = ({ onAddContact }) => {
     const handleChange = (e) => {
         const { id, value } = e.target;
         switch (id) {
-            case "fullName":
-                setFullName(value);
+            case "name":
+                setName(value);
                 break;
             case "email":
                 setEmail(value);
@@ -47,32 +47,34 @@ const AddContactForm = ({ onAddContact }) => {
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const updatedContact = {
-            fullName,
+            name,
             email,
             phone,
             address,
         };
 
-        if (contactToEdit) {
-            updatedContact.id = contactToEdit.id;
-        }
-
-        onAddContact(updatedContact);
-        if (contactToEdit) {
-            setSuccessMessage("Contact updated successfully");
-        } else {
-            setFullName("");
-            setEmail("");
-            setPhone("");
-            setAddress("");
+        try {
+            if (contactToEdit) {
+                await actions.editContact(contactToEdit.id, updatedContact);
+                setSuccessMessage("Contact updated successfully");
+            } else {
+                await actions.addContact(updatedContact);
+                setSuccessMessage("Contact added successfully");
+                setName("");
+                setEmail("");
+                setPhone("");
+                setAddress("");
+            }
+        } catch (error) {
+            console.error("Error saving contact:", error);
         }
     };
 
     const handleBackToHome = (e) => {
-        e.preventDefault(); 
+        e.preventDefault();
         navigate("/");
     };
 
@@ -82,13 +84,14 @@ const AddContactForm = ({ onAddContact }) => {
             {successMessage && <div className="alert alert-success">{successMessage}</div>}
             <form onSubmit={handleSubmit}>
                 <div className="mb-3">
-                    <label htmlFor="fullName" className="form-label">Full Name</label>
+                    <label htmlFor="name" className="form-label">Name</label>
                     <input
                         type="text"
                         className="form-control"
-                        id="fullName"
-                        value={fullName}
+                        id="name"
+                        value={name}
                         onChange={handleChange}
+                        required
                     />
                 </div>
                 <div className="mb-3">
@@ -99,6 +102,7 @@ const AddContactForm = ({ onAddContact }) => {
                         id="email"
                         value={email}
                         onChange={handleChange}
+                        required
                     />
                 </div>
                 <div className="mb-3">
@@ -109,6 +113,7 @@ const AddContactForm = ({ onAddContact }) => {
                         id="phone"
                         value={phone}
                         onChange={handleChange}
+                        required
                     />
                 </div>
                 <div className="mb-3">
@@ -119,6 +124,7 @@ const AddContactForm = ({ onAddContact }) => {
                         id="address"
                         value={address}
                         onChange={handleChange}
+                        required
                     />
                 </div>
                 <button type="submit" className="btn btn-primary w-100 mb-2">

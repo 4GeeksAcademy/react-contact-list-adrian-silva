@@ -19,24 +19,23 @@ const AddContact = () => {
         }
     }, [id, store.contactList]);
 
-    // Function to handle saving a contact
     const handleSaveContact = async (contact) => {
         try {
             if (contactToEdit) {
-                await actions.editContact(contact.id, contact);
+                await actions.editContact(id, contact);
             } else {
                 await actions.addContact(contact);
             }
-            navigate("/contact");
-        } catch (error) {
-            setError(error.message);
+            navigate("/");
+        } catch (err) {
+            setError(err.message);
         }
     };
 
     return (
         <div>
-            {error && <p>Error: {error}</p>}
-            <AddContactForm onAddContact={handleSaveContact} contactToEdit={contactToEdit} />
+            {error && <div className="alert alert-danger">{error}</div>}
+            <AddContactForm onAddContact={handleSaveContact} />
         </div>
     );
 };

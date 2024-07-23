@@ -7,9 +7,13 @@ import "../styles/index.css";
 
 //import your own components
 import Layout from './layout.js'
-
-//
-const root = createRoot(document.querySelector("#app"))
+import { BrowserRouter } from "react-router-dom";
 
 //render your react application
-root.render(<Layout/>)
+const root = createRoot(document.querySelector("#app"))
+
+root.render(
+    <BrowserRouter>
+        <Layout />
+    </BrowserRouter>
+);
